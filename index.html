@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DocLint — проверка оформления курсовой и ВКР по ГОСТ в браузере</title>
+  <meta name="description" content="DocLint за минуту проверяет .docx по ГОСТ 7.32-2017 или методичке кафедры: поля, шрифт, кегль, интервал, отступ и выравнивание. Файл не покидает компьютер, регистрация не нужна.">
+  <link rel="stylesheet" href="./assets/css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к содержимому</a>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">DL</span>
+        <div>
+          <h1>DocLint</h1>
+          <p class="tagline">Проверка оформления учебных работ по ГОСТ прямо в браузере</p>
+        </div>
+      </div>
+      <p class="privacy-badge">
+        <span aria-hidden="true">●</span> Файл не покидает ваш компьютер
+      </p>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    <section class="panel" aria-labelledby="setup-title">
+      <h2 id="setup-title">1. Профиль требований</h2>
+      <div class="profile-row">
+        <label for="profile-select">Профиль</label>
+        <select id="profile-select"></select>
+        <button id="btn-new-profile" class="btn btn-secondary" type="button">Свой профиль</button>
+        <button id="btn-export-profile" class="btn btn-ghost" type="button">Экспорт .json</button>
+        <label class="btn btn-ghost" for="import-profile-input">Импорт .json</label>
+        <input id="import-profile-input" class="visually-hidden" type="file" accept=".json,application/json">
+      </div>
+      <p id="profile-note" class="hint"></p>
+
+      <form id="profile-form" class="profile-form" hidden novalidate>
+        <h3 id="profile-form-title">Новый профиль кафедры</h3>
+        <div class="form-grid">
+          <label class="field field-wide">
+            <span>Название профиля</span>
+            <input id="profile-name" type="text" maxlength="80" required placeholder="ФИТ НГУ, курсовая 2026">
+          </label>
+          <label class="field">
+            <span>Левое поле, мм</span>
+            <input id="margin-left" type="number" min="1" max="100" step="0.5" required>
+          </label>
+          <label class="field">
+            <span>Правое поле, мм</span>
+            <input id="margin-right" type="number" min="1" max="100" step="0.5" required>
+          </label>
+          <label class="field">
+            <span>Верхнее поле, мм</span>
+            <input id="margin-top" type="number" min="1" max="100" step="0.5" required>
+          </label>
+          <label class="field">
+            <span>Нижнее поле, мм</span>
+            <input id="margin-bottom" type="number" min="1" max="100" step="0.5" required>
+          </label>
+          <label class="field">
+            <span>Шрифт</span>
+            <input id="font-family" type="text" maxlength="64" required placeholder="Times New Roman">
+          </label>
+          <label class="field">
+            <span>Минимальный кегль, пт</span>
+            <input id="min-font-pt" type="number" min="1" max="72" step="0.5" required>
+          </label>
+          <label class="field">
+            <span>Междустрочный интервал</span>
+            <input id="line-spacing" type="number" min="0.5" max="3" step="0.05" required>
+          </label>
+          <label class="field">
+            <span>Абзацный отступ, мм</span>
+            <input id="first-line-mm" type="number" min="0" max="100" step="0.5" required>
+          </label>
+          <label class="field">
+            <span>Выравнивание</span>
+            <select id="alignment" required>
+              <option value="justify">По ширине</option>
+              <option value="left">По левому краю</option>
+              <option value="center">По центру</option>
+              <option value="right">По правому краю</option>
+            </select>
+          </label>
+        </div>
+        <p id="profile-form-error" class="form-error" role="alert" hidden></p>
+        <div class="form-actions">
+          <button id="btn-save-profile" class="btn btn-primary" type="submit">Сохранить профиль</button>
+          <button id="btn-cancel-profile" class="btn btn-ghost" type="button">Отмена</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel" aria-labelledby="document-title">
+      <h2 id="document-title">2. Документ</h2>
+      <div id="dropzone" class="dropzone" aria-describedby="dropzone-hint">
+        <p class="dropzone-title">Перетащите .docx сюда</p>
+        <p id="dropzone-hint" class="hint">
+          Или выберите файл кнопкой. Один файл за раз, до 20 МБ.
+          Документ распаковывается и проверяется только в вашем браузере.
+        </p>
+        <div class="dropzone-actions">
+          <button id="btn-browse" class="btn btn-primary" type="button">Выбрать файл</button>
+          <button id="btn-check-sample" class="btn btn-secondary" type="button">Проверить пример</button>
+        </div>
+        <input id="file-input" class="visually-hidden" type="file"
+               accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+      </div>
+
+      <div id="status" class="status" role="status" aria-live="polite" hidden></div>
+      <div id="error-box" class="error-box" role="alert" hidden></div>
+    </section>
+
+    <section id="report" class="report" aria-labelledby="report-title" hidden>
+      <div class="report-head">
+        <div>
+          <h2 id="report-title">3. Отчёт</h2>
+          <p id="report-meta" class="hint"></p>
+        </div>
+        <button id="btn-print" class="btn btn-ghost" type="button">Печать / PDF</button>
+      </div>
+      <p id="report-summary" class="summary"></p>
+      <div id="report-filters" class="filters" role="group" aria-label="Фильтр по категориям"></div>
+      <div id="report-cards" class="cards"></div>
+      <p id="report-empty" class="report-empty" hidden></p>
+      <p class="scope-note">
+        Проверяются только обычные абзацы основного текста: поля страницы, шрифт, кегль,
+        междустрочный интервал, абзацный отступ и выравнивание. Титульный лист, заголовки,
+        оглавление, таблицы и пустые абзацы пропускаются. Документ не изменяется.
+      </p>
+    </section>
+
+    <section id="empty-state" class="empty-state">
+      <h2>Как это работает</h2>
+      <ol class="flow">
+        <li>Выберите профиль требований — пресет ГОСТ или свою методичку.</li>
+        <li>Перетащите .docx в окно или нажмите «Проверить пример».</li>
+        <li>Получите список нарушений с номерами абзацев и подсказками для Word.</li>
+        <li>Исправьте и проверьте снова, пока отчёт не станет пустым.</li>
+      </ol>
+      <p class="hint">
+        Регистрация не нужна. Файл обрабатывается локально и не отправляется на сервер.
+      </p>
+    </section>
+
+    <section class="panel scope" aria-labelledby="scope-title">
+      <h2 id="scope-title">Что проверяется в MVP</h2>
+      <div class="scope-columns">
+        <div>
+          <h3>Проверяется</h3>
+          <ul>
+            <li>поля страницы: левое, правое, верхнее, нижнее;</li>
+            <li>шрифт (например, Times New Roman);</li>
+            <li>размер шрифта (минимальный кегль);</li>
+            <li>междустрочный интервал;</li>
+            <li>абзацный отступ первой строки;</li>
+            <li>выравнивание абзаца.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Не проверяется</h3>
+          <ul>
+            <li>титульный лист, заголовки и оглавление;</li>
+            <li>текст в таблицах, подписи рисунков и таблиц;</li>
+            <li>список литературы, нумерация страниц, колонтитулы;</li>
+            <li>содержание и грамотность текста.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="hint">
+        Оформление вычисляется с учётом наследования стилей Word: стиль по умолчанию →
+        стиль абзаца и его родители → прямое форматирование абзаца → форматирование фрагмента.
+        Если значение определить нельзя, правило честно пропускается.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>DocLint · MVP · Работает на GitHub Pages без сервера, регистрации и аналитики.</p>
+      <p class="hint">Отчёт живёт до следующей проверки или закрытия вкладки.</p>
+    </div>
+  </footer>
+
+  <noscript>
+    <p class="noscript">Для проверки документов нужен JavaScript.</p>
+  </noscript>
+
+  <script src="./assets/vendor/jszip.min.js"></script>
+  <script type="module" src="./assets/js/app.js"></script>
+</body>
+</html>

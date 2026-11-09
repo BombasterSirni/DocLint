@@ -1,0 +1,16 @@
+{
+  "name": "doclint",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "DocLint — проверка оформления учебных .docx по ГОСТ или методичке кафедры прямо в браузере",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "test:bun": "bun test",
+    "sample": "bun tools/make-sample.mjs",
+    "serve": "python3 -m http.server 8080"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
