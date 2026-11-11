@@ -84,16 +84,17 @@ bun tools/make-sample.mjs   # sample/demo.docx
 
 Workflow `.github/workflows/ci.yml` запускает тесты на каждый push/PR.
 Собранный статический сайт публикуется в отдельный репозиторий
-`doclint-site`, откуда GitHub Pages отдаёт готовые файлы:
+`doclint-site` командой:
 
 ```bash
 tools/publish-site.sh
 ```
 
 Скрипт собирает `dist/`, копирует `index.html`, `assets/` и `sw.js` и делает
-push в `main` репозитория `doclint-site`. Источник: репозиторий `DocLint`,
-сайт: https://bombasterirni.github.io/doclint-site/. Все пути относительные,
-поэтому сайт работает и в подкаталоге GitHub Pages.
+push в `main` репозитория `doclint-site`. Источник проекта остаётся в
+репозитории `DocLint`. Все пути относительные, поэтому сайт работает и в
+подкаталоге GitHub Pages. Для проверки без хостинга используйте локальный
+запуск из раздела «Запуск».
 
 ## Структура
 
