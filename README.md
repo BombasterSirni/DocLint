@@ -82,11 +82,18 @@ bun tools/make-sample.mjs   # sample/demo.docx
 
 ## Публикация на GitHub Pages
 
-Workflow `.github/workflows/ci.yml` запускает тесты на каждый push/PR и
-публикует статические файлы из `dist/` при push в `main`.
-В настройках репозитория: **Settings → Pages → Source: GitHub Actions**.
-Все пути в приложении относительные, поэтому проект работает и в подкаталоге
-`https://<user>.github.io/<repo>/`.
+Workflow `.github/workflows/ci.yml` запускает тесты на каждый push/PR.
+Собранный статический сайт публикуется в отдельный репозиторий
+`doclint-site`, откуда GitHub Pages отдаёт готовые файлы:
+
+```bash
+tools/publish-site.sh
+```
+
+Скрипт собирает `dist/`, копирует `index.html`, `assets/` и `sw.js` и делает
+push в `main` репозитория `doclint-site`. Источник: репозиторий `DocLint`,
+сайт: https://bombasterirni.github.io/doclint-site/. Все пути относительные,
+поэтому сайт работает и в подкаталоге GitHub Pages.
 
 ## Структура
 
@@ -111,6 +118,7 @@ assets/vendor/jszip.min.js     JSZip 3.10.1, локально (MIT/GPLv3)
 assets/vendor/JSZIP-LICENSE.md лицензия JSZip
 tests/                         модульные и интеграционные тесты
 tools/make-sample.mjs          сборка sample/demo.docx
+tools/publish-site.sh           публикация статического сайта
 sample/demo.docx               пример с намеренными ошибками
 .github/workflows/ci.yml       тесты и публикация на Pages
 ```
